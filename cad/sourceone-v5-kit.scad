@@ -1,6 +1,6 @@
 // TBS Source One V5 FPV accessories. Dimensions in mm.
 // Select a part and render (F6) before exporting STL.
-part = "phoenix2"; // [phoenix2,camera-tilt-gauge,sma,elrs,wire_right,wire_left,arm-right16,arm-left16,arm-right19,arm-left19,front-skid,rear-skid,duct-right,duct-left,antenna]
+part = "phoenix2"; // [phoenix2,camera-tilt-gauge,sma,elrs,wire_right,wire_left,arm-right16,arm-left16,arm-right19,arm-left19,arm-strap-right,arm-strap-left,front-skid,rear-skid,duct-right,duct-left,antenna]
 camera_width = 19.35;
 camera_screw_d = 2.4;
 camera_hole_pitch = 4.2;
@@ -360,6 +360,44 @@ module arm_bumper(pattern) {
     }
 }
 
+module strap_saddle_section(start,margin,z,h) {
+    end=-12.3;
+    translate([0,0,z]) linear_extrude(h)
+        rounded_polygon([[start,arm_low(start)-margin],[end,arm_low(end)-margin],
+                         [end,arm_high(end)+margin],[start,arm_high(start)+margin]],2);
+}
+
+module arm_strap_bumper() {
+    contact=9;
+    rim=4.75;
+    difference() {
+        union() {
+            bumper_tread();
+            hull() {
+                strap_saddle_section(-36.7,.65,0,.2);
+                strap_saddle_section(-38.9,1.3,2.5,contact-2.5);
+            }
+            translate([0,0,contact-.12]) linear_extrude(rim+.12)
+                difference() {
+                    nose_outline(3.42);
+                    offset(r=.55,$fn=32) polygon(arm_outline);
+                    translate([-22,-10.5]) square([8,21]);
+                }
+        }
+        // A common open pocket clears existing heads on both mounting patterns.
+        translate([0,0,4.35]) cylinder(d=26.6,h=contact+rim);
+        translate([0,0,-e]) cylinder(d=8.2,h=4.4);
+        // Thread a 3.6 mm tie across the saddle at the wire shield's outer band.
+        translate([-34,0,5.85]) rotate([90,0,0]) linear_extrude(22,center=true)
+            hull() for(x=[-1.45,1.45])
+                translate([x,0]) circle(d=1.65,$fn=40);
+        for (side=[-1,1])
+            translate([0,side*11.9,-e]) linear_extrude(1.23)
+                hull() for (x=[-4.15,5.15])
+                    translate([x,0]) circle(d=1.7,$fn=32);
+    }
+}
+
 if(part=="front-skid") skid(19,12.2);
 if(part=="rear-skid") skid(22,5.75);
 if(part=="duct-right") translate([-9.5,5,0]) side_duct(true);
@@ -368,3 +406,6 @@ if(part=="arm-right16") arm_bumper(16);
 if(part=="arm-left16") mirror([0,1,0]) arm_bumper(16);
 if(part=="arm-right19") arm_bumper(19);
 if(part=="arm-left19") mirror([0,1,0]) arm_bumper(19);
+
+if(part=="arm-strap-right") arm_strap_bumper();
+if(part=="arm-strap-left") mirror([0,1,0]) arm_strap_bumper();
