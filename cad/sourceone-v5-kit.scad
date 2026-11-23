@@ -16,10 +16,10 @@ sma_up_tilt = 30;
 receiver_width = 14.5; // Including heat shrink
 receiver_length = 24;
 wire_height = 4.2; // Space above carbon
-tie_width = 3.8;
+tie_width = 4.36;
 bumper_screw_d = 3.5;
 bumper_head_d = 6.8;
-bumper_deck = 2.9;
+bumper_deck = 3.1;
 $fn = 64;
 e = 0.03;
 
@@ -164,22 +164,28 @@ function arm_high(x) = 2.83-0.0553*x;
 wire_start = -63.5;
 wire_end = -27;
 
-module guard_span(margin,z,h) {
-    translate([0,0,z]) linear_extrude(h)
-        rounded_polygon([[wire_start,arm_low(wire_start)-margin],
-                         [wire_end,arm_low(wire_end)-margin],
-                         [wire_end,arm_high(wire_end)+margin],
-                         [wire_start,arm_high(wire_start)+margin]],1.5);
+module wire_section(margin,z,end_setback=0) {
+    x1=wire_start+end_setback;
+    x2=wire_end-end_setback;
+    translate([0,0,z]) linear_extrude(.18)
+        rounded_polygon([[x1,arm_low(x1)-margin],[x2,arm_low(x2)-margin],
+                         [x2,arm_high(x2)+margin],[x1,arm_high(x1)+margin]],1.7);
 }
 
 module wire_guard() {
-    roof=3.1;
+    roof=3.8;
     lip=1.65;
     bottom=roof+wire_height+lip;
     difference() {
-        hull() {
-            guard_span(1.8,0,0.25);
-            guard_span(2.85,1.25,bottom-1.25);
+        union() {
+            hull() {
+                wire_section(1.65,0,2.25);
+                wire_section(2.98,2.35);
+            }
+            hull() {
+                wire_section(2.98,2.25);
+                wire_section(2.66,bottom-.18);
+            }
         }
         slab([[wire_start-1,arm_low(wire_start-1)-.55],
               [wire_end+1,arm_low(wire_end+1)-.55],
@@ -187,11 +193,11 @@ module wire_guard() {
               [wire_start-1,arm_high(wire_start-1)+.55]],
               wire_height+lip+e,roof);
         for (x=[-57,-34])
-            translate([x-tie_width/2,-15,-e]) cube([tie_width,30,1.0]);
-        // Shallow center relief keeps the protective roof continuous.
-        translate([0,0,-e]) linear_extrude(.78)
-            hull() for (x=[-50.5,-40.5])
-                translate([x,.55]) circle(d=3.6,$fn=40);
+            translate([x-tie_width/2,-15,-e]) cube([tie_width,30,1.17]);
+        // The wide inset ends above a continuous roof.
+        translate([0,0,-e]) linear_extrude(1.13)
+            hull() for (x=[-51.1,-39.9])
+                translate([x,.55]) circle(d=5.3,$fn=40);
     }
 }
 
@@ -303,18 +309,31 @@ module nose_outline(extra) {
     }
 }
 
+module bumper_section(extra,z,h=.2) {
+    translate([0,0,z]) linear_extrude(h) nose_outline(extra);
+}
+
+module bumper_tread() {
+    hull() {
+        bumper_section(1.4,0);
+        bumper_section(3.6,2.25);
+    }
+    hull() {
+        bumper_section(3.6,2.15);
+        bumper_section(3.65,6.25);
+        bumper_section(3.42,8.78,.22);
+    }
+}
+
 module arm_bumper(pattern) {
     contact=9;
     rim=4.75;
     difference() {
         union() {
-            hull() {
-                linear_extrude(.25) nose_outline(1.8);
-                translate([0,0,1.8]) linear_extrude(contact-1.8) nose_outline(3.25);
-            }
-            translate([0,0,contact-.11]) linear_extrude(rim+.11)
+            bumper_tread();
+            translate([0,0,contact-.12]) linear_extrude(rim+.12)
                 difference() {
-                    nose_outline(3.25);
+                    nose_outline(3.42);
                     offset(r=.55,$fn=32) polygon(arm_outline);
                     translate([-22,-10.5]) square([8,21]);
                 }
@@ -323,16 +342,21 @@ module arm_bumper(pattern) {
         for (s=[-1,1],t=[-1,1])
             translate([s*pattern/sqrt(8),t*pattern/sqrt(8),-e]) {
                 cylinder(d=bumper_screw_d,h=contact+rim+2*e);
-                // Flatten the inner side of each pocket to retain the center web.
+                // The wider driver entry grows outward from the center web.
                 intersection() {
                     union() {
                         cylinder(d=bumper_head_d,h=contact-bumper_deck+e);
-                        cylinder(d1=7.6,d2=bumper_head_d,h=1.15);
+                        cylinder(d1=8.2,d2=bumper_head_d,h=2.25);
                     }
                     rotate([0,0,atan2(t,s)]) translate([-3.2,-5,-e])
-                        cube([8.4,10,contact]);
+                        cube([8.5,10,contact]);
                 }
             }
+        // Shallow tread grooves sit outside the screw pockets.
+        for (side=[-1,1])
+            translate([0,side*11.9,-e]) linear_extrude(1.23)
+                hull() for (x=[-4.15,5.15])
+                    translate([x,0]) circle(d=1.7,$fn=32);
     }
 }
 
