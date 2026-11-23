@@ -1,6 +1,6 @@
 # Source One V5 TPU print kit
 
-A dark-blue accessory set fitted to the supplied TBS Source One V5 frame geometry. The kit includes faceted stack protectors with forward-facing air scoops, a recessed four-position RunCam Phoenix 2 holder, wire shields, wraparound landing bumpers, front and rear skids, and rear radio antenna mounts.
+This reinforced dark-blue accessory set fits the supplied TBS Source One V5 frame geometry. It pairs deep, rounded triangular stack intakes with a full-height, recessed RunCam Phoenix 2 holder. The holder has four matched M2 positions, 4.5 mm side plates, and wider relief slots. The wire shields, wraparound landing bumpers, front and rear skids, and rear antenna and receiver mounts also have more material around their mounting points.
 
 ![Annotated assembled and underside sketch of the Source One V5 print kit](previews/sketch-preview.png)
 
@@ -17,6 +17,6 @@ The prearranged plate uses 16 × 16 mm motor bumpers. The individual STL folder 
 
 ## Assembly views
 
-[Assembled view](previews/assembly-preview.jpg) · [Rear cutaway](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
+[Assembled view](previews/assembly-preview.jpg) · [Camera and scoop close-up](previews/nose-preview.jpg) · [Rear cutaway](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
 
 CAD clearance checks used the supplied frame and representative hardware geometry. Check prop clearance and the live camera view with your actual hardware. Cooling and drag performance have not been measured.
