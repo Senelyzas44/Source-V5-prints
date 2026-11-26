@@ -1,14 +1,18 @@
 // TBS Source One V5 FPV accessories. Dimensions in mm.
 // Select a part and render (F6) before exporting STL.
-part = "phoenix2"; // [phoenix2,camera-tilt-gauge,sma,elrs,wire_right,wire_left,arm-right16,arm-left16,arm-right19,arm-left19,arm-strap-right,arm-strap-left,front-skid,rear-skid,duct-right,duct-left,antenna]
-camera_width = 19.35;
-camera_screw_d = 2.4;
-camera_hole_pitch = 4.2;
-camera_rail_thickness = 4.5;
+part = "phoenix2-right"; // [phoenix2-right,phoenix2-left,camera-tilt-gauge,sma,elrs,wire_right,wire_left,arm-right16,arm-left16,arm-right19,arm-left19,arm-strap-right,arm-strap-left,front-skid,rear-skid,duct-right,duct-left,antenna]
+camera_width = 19.8;
+camera_screw_d = 2.6;
+camera_hole_pitch = 3.6;
+camera_rail_thickness = 3.2;
+camera_post_bore = 5.85;
+camera_lens_half_gap = 8.6;
 camera_pivot_setback = 10.283;
-camera_pivot_height = 12;
+camera_pivot_height = 11.25;
 camera_up_tilt = 15;
 standoff_bore = 5.35;
+duct_post_bore = 5.85;
+duct_top = 22.25;
 sma_d = 6.55;
 sma_flat = 6.05; // Set equal to sma_d for a round body.
 sma_panel = 3.2;
@@ -42,57 +46,62 @@ module post_rings(pitch, h, outer=8.7) {
 }
 
 module camera_outline() {
-    rounded_polygon([[-35.1,0],[-35.1,5.4],[-32.4,14.2],[-29.0,20.8],
-                     [-26.8,21.75],[-8.1,21.75],[-3.2,20.45],[1.8,16],
-                     [4.8,9],[4.3,2.6],[1.4,0]],.8);
+    rounded_polygon([[-22.9,0],[-24.3,4.1],[-24.5,13.4],[-22,17.6],
+                     [-8,20],[-1.5,18.8],[3,15],[4.4,9],[3.6,1.3],[1.4,0]],.75);
 }
 
+// Each cheek mounts on one post and leaves the rear connector area open.
 module camera_rail() {
     translate([camera_width/2,0,0]) rotate([90,0,90])
         union() {
-            linear_extrude(camera_rail_thickness-.7) camera_outline();
+            linear_extrude(camera_rail_thickness-.55) camera_outline();
             hull() {
-                translate([0,0,camera_rail_thickness-.78])
-                    linear_extrude(.10) camera_outline();
-                translate([0,0,camera_rail_thickness-.10])
-                    linear_extrude(.10) offset(delta=-.60) camera_outline();
+                translate([0,0,camera_rail_thickness-.63])
+                    linear_extrude(.09) camera_outline();
+                translate([0,0,camera_rail_thickness-.09])
+                    linear_extrude(.09) offset(delta=-.48) camera_outline();
             }
         }
 }
 
 module camera_collar() {
     hull() {
-        cylinder(d=9.8,h=.7);
-        translate([0,0,.9]) cylinder(d=10.6,h=20.6);
-        translate([0,0,21.75]) cylinder(d=9.8,h=.55);
+        cylinder(d=10,h=.75);
+        translate([0,0,.85]) cylinder(d=10.6,h=19.6);
+        translate([0,0,20.65]) cylinder(d=9.9,h=.55);
     }
 }
 
-module phoenix2() {
+module chamfered_post_hole(d,h) {
+    translate([0,0,-e]) cylinder(d=d,h=h+2*e);
+    translate([0,0,-e]) cylinder(d1=d+1.0,d2=d,h=.82);
+    translate([0,0,h-.8]) cylinder(d1=d,d2=d+1.0,h=.82);
+}
+
+module pointed_screw_hole(d,h) {
+    r=d/2;
+    translate([0,0,0]) rotate([90,0,90])
+        linear_extrude(h) union() {
+            circle(d=d);
+            polygon([[-.707*r,.707*r],[.707*r,.707*r],[0,1.4143*r]]);
+        }
+}
+
+module phoenix2_cheek() {
+    collar_height=21.2;
     difference() {
         union() {
-            slab([[-12,-34.9],[12,-34.9],[12,-31.6],[-12,-31.6]],2.3);
-            for(s=[-1,1]) scale([s,1,1]) {
-                translate([9.5,0,0]) camera_collar();
-                camera_rail();
-            }
+            translate([9.5,0,0]) camera_collar();
+            camera_rail();
         }
-        post_holes(19,22.3);
-        // Barrel clearance between the two tall front collars.
-        translate([0,-9.7,14.1]) rotate([-90,0,0]) scale([1,1.16,1])
-            cylinder(r=8.05,h=15.8);
-        for(i=[0:3]) {
-            y = -camera_pivot_setback-camera_hole_pitch*i;
-            z = camera_pivot_height+.35*(i%2);
-            translate([-20,y,z]) rotate([0,90,0]) cylinder(d=camera_screw_d,h=40);
-            for(s=[-1,1]) scale([s,1,1])
-                translate([camera_width/2+camera_rail_thickness-.64,y,z])
-                    rotate([0,90,0]) cylinder(d1=camera_screw_d,d2=3.5,h=.69);
-        }
-        for (window=[[6.1,-27.1,-9.3,3.8],[17.4,-26,-9.7,3.7]])
-            hull() for(y=[window[1],window[2]])
-                translate([-20,y,window[0]]) rotate([0,90,0])
-                    cylinder(d=window[3],h=40,$fn=40);
+        translate([9.5,0,0])
+            chamfered_post_hole(camera_post_bore,collar_height);
+        // The lower ring retains the post. The open upper collar clears the barrel.
+        translate([0,-8,3.2]) cube([camera_lens_half_gap,15,20]);
+        for(i=[0:3])
+            translate([camera_width/2-e,
+                       -camera_pivot_setback-camera_hole_pitch*i,camera_pivot_height])
+                pointed_screw_hole(camera_screw_d,camera_rail_thickness+2*e);
     }
 }
 
@@ -217,7 +226,8 @@ module antenna() {
     }
 }
 
-if(part=="phoenix2") phoenix2();
+if(part=="phoenix2-right") phoenix2_cheek();
+if(part=="phoenix2-left") mirror([1,0,0]) phoenix2_cheek();
 if(part=="camera-tilt-gauge") camera_tilt_gauge();
 if(part=="sma") sma();
 if(part=="elrs") receiver();
@@ -249,21 +259,21 @@ module skid(pitch,h) {
 
 function duct_outline(section,inside) =
     section==0 ? (
-        inside ? [[19.05,4],[20.2,2.95],[26.35,2.95],[28.35,5],
+        inside ? [[19.05,-1.25],[24.65,-1.25],[28.35,5],
                   [28.6,8],[27.4,12.65],[23.8,18.9],[22.25,19.35],
                   [20.1,19.35],[19.05,18]] :
                  [[16.6,2],[18.5,0],[26.7,0],[30.8,3.4],[31.2,8.2],
-                  [29.9,13.9],[25.2,21.8],[22.7,22.2],[18.6,22.2],[16.6,19.8]]
+                  [29.9,13.9],[25.2,21.8],[24.9,duct_top],[18.6,duct_top],[16.6,19.8]]
     ) : section==1 ? (
-        inside ? [[18.3,3.15],[26.75,3.15],[29.4,7.1],[29.4,13],
+        inside ? [[18.3,-1.25],[25.7,-1.25],[29.4,7.1],[29.4,13],
                   [26.85,18.05],[24.4,19.3],[18.3,19.3]] :
                  [[23.45,0],[27.9,0],[32.1,5.6],[32.1,14.3],
-                  [28.35,20.9],[24.9,22.25],[21.5,22.25],[21.5,19.8],[23.45,16.3]]
+                  [28.35,20.9],[27.1,duct_top],[21.5,duct_top],[21.5,19.8],[23.45,16.3]]
     ) : (
-        inside ? [[18.2,3.2],[24.75,3.2],[26.55,6.5],[26.55,12.1],
+        inside ? [[18.2,-1.25],[24.3,-1.25],[26.55,6.5],[26.55,12.1],
                   [24.7,18.4],[23.45,19.2],[18.2,19.2]] :
                  [[23.05,0],[26.2,0],[29.2,4.9],[29.2,13.4],
-                  [26.1,20.8],[24.75,22.15],[21.6,22.15],[21.6,19.75],[23.05,16.7]]
+                  [26.1,20.8],[24.75,duct_top],[21.6,duct_top],[21.6,19.75],[23.05,16.7]]
     );
 
 module duct_section(y,section,inside) {
@@ -272,7 +282,6 @@ module duct_section(y,section,inside) {
 }
 
 module duct_shell(inside=false) {
-    // Forward flare blends into the open inboard channel.
     stations = inside ? [[36,0],[32,0],[25,1],[-22,1],[-38,2]] :
                         [[35.6,0],[31,0],[24,1],[-22,1],[-37.6,2]];
     for(i=[0:len(stations)-2])
@@ -282,24 +291,35 @@ module duct_shell(inside=false) {
         }
 }
 
-module side_duct(service_port=false) {
+module side_duct() {
+    ring_base=17.75;
+    ring_h=duct_top-ring_base;
     difference() {
         union() {
             duct_shell();
             for (pos=[[9.5,32.883],[10,-42.883]])
                 hull() {
-                    translate([pos[0],pos[1],19.3]) cylinder(d=9.65,h=2.95);
-                    translate([22.2,max(-37.6,pos[1]-2.5),19.3]) cube([3.25,5,2.95]);
+                    translate([pos[0],pos[1],ring_base])
+                        cylinder(d=10.1,h=ring_h);
+                    translate([22.2,max(-37.6,pos[1]-2.5),ring_base])
+                        cube([3.25,5,ring_h]);
                 }
         }
         duct_shell(true);
+        // USB and cable access across the stack, open at the installed lower edge.
+        translate([17,0,0]) rotate([90,0,90]) linear_extrude(20)
+            rounded_polygon([[-21,-3],[21,-3],[21,12.2],[18.8,18.45],
+                             [-18.8,18.45],[-21,12.2]],1);
         for (pos=[[9.5,32.883],[10,-42.883]])
-            translate([pos[0],pos[1],19.1]) cylinder(d=5.45,h=3.4);
-        if(service_port)
-            hull() for(y=[-2.25,5.85])
-                translate([20,y,14.1]) rotate([0,90,0])
-                    cylinder(d=7.65,h=16,$fn=48);
+            translate([pos[0],pos[1],ring_base])
+                chamfered_post_hole(duct_post_bore,ring_h);
     }
+}
+
+module print_duct() {
+    // The tab and upper rail sit on the bed. The access notch grows upward.
+    rotate([180,0,0])
+        translate([-9.5,5,-duct_top]) side_duct();
 }
 
 module nose_outline(extra) {
@@ -400,8 +420,8 @@ module arm_strap_bumper() {
 
 if(part=="front-skid") skid(19,12.2);
 if(part=="rear-skid") skid(22,5.75);
-if(part=="duct-right") translate([-9.5,5,0]) side_duct(true);
-if(part=="duct-left") mirror([1,0,0]) translate([-9.5,5,0]) side_duct();
+if(part=="duct-right") print_duct();
+if(part=="duct-left") mirror([1,0,0]) print_duct();
 if(part=="arm-right16") arm_bumper(16);
 if(part=="arm-left16") mirror([0,1,0]) arm_bumper(16);
 if(part=="arm-right19") arm_bumper(19);
