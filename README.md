@@ -1,24 +1,20 @@
 # Source One V5 TPU print kit
 
-This reinforced dark-blue accessory set fits the supplied TBS Source One V5 frame geometry. It pairs deep, rounded triangular stack intakes with a short, split RunCam Phoenix 2 holder. The holder uses separate short cheeks with relieved lens collars and four matching M2 positions. Each duct has a wide open-bottom USB notch. The tapered wire shields have a 3.8 mm roof and wider recessed tie bands. The bolt-free motor-end shoes wrap the carbon and share the outer wire-shield zip tie. A common recess clears the existing motor screw heads. The kit also includes front and rear skids and the rear antenna and receiver mounts.
+Dark-blue TPU parts for the TBS Source One V5. The four-post stack shroud has continuous rails around both USB windows and forward scoops that open into the electronics bay. Its front side walls overlap the camera cradle to cover the camera wiring. The RunCam Phoenix 2 cradle joins its two post sleeves below the lens and leaves the rear open for the cable. Each 45 mm motor-wire holder has a flat sole for a 6 × 41 mm strip of 3M tape.
 
-![Annotated assembled and underside sketch of the Source One V5 print kit](previews/sketch-preview.png)
+![CAD views of the stack shroud, camera cradle, wire holder and flat tape sole](previews/revision-preview.png)
 
 ## Download and print
 
-- [Complete ZIP](downloads/Source-One-V5-Dark-Blue-Scoop-Kit.zip)
-- [Arranged 18-piece 3MF print plate](downloads/dark-blue-print-plate.3mf)
-- [Four-part camera and USB fit-fix plate](downloads/fit-fix-print-plate.3mf)
-- [Four-part camera and USB fit-fix plate](downloads/fit-fix-print-plate.3mf)
-- [Individual STLs](STL/)
-- [Print settings and installation guide](PRINT-AND-FIT.md)
-- [Editable OpenSCAD](cad/sourceone-v5-kit.scad)
-- [Color 3D assembly](cad/dark-blue-assembly.glb)
+- [Six-piece revision plate with the shroud, cradle and all four wire holders](downloads/fit-fix-print-plate.3mf)
+- [Complete kit ZIP](downloads/Source-One-V5-Dark-Blue-Scoop-Kit.zip) · [Complete 16-piece print plate](downloads/dark-blue-print-plate.3mf)
+- [Individual STLs](STL/) · [Print settings and fit guide](PRINT-AND-FIT.md)
+- [Editable OpenSCAD](cad/sourceone-v5-kit.scad) · [Color assembly model](cad/dark-blue-assembly.glb)
 
-The prearranged plate uses the bolt-free motor-end shoes. The individual STL folder also includes the 16 × 16 mm and 19 × 19 mm bolt-on alternatives. Choose the parts that match your hardware and start with 95A TPU.
+Use 95A TPU. Print the shroud tail down, the camera cradle bridge down, and the wire holders tape side down. The plates include the bolt-free bumper design wherever bumpers are supplied. Each bolt-free shoe still uses one 3.6 mm tie. The STL folder also includes 16 × 16 and 19 × 19 mm bolt-on alternatives.
 
 ## Assembly views
 
-[Assembled view](previews/assembly-preview.jpg) · [Bumper and wire shield close-up](previews/arm-detail-preview.jpg) · [Camera and scoop close-up](previews/nose-preview.jpg) · [USB access and camera fit](previews/service-preview.jpg) · [USB access and camera fit](previews/service-preview.jpg) · [Rear cutaway](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
+[Camera wire protection, assembled and exposed](previews/camera-wire-preview.jpg) · [Assembly sketch](previews/sketch-preview.png) · [Assembled frame](previews/assembly-preview.jpg) · [USB cable and camera fit](previews/service-preview.jpg) · [Wire holder and landing shoe](previews/arm-detail-preview.jpg) · [Camera and scoop](previews/nose-preview.jpg) · [Rear electronics](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
 
-CAD clearance checks used the supplied frame and representative hardware geometry. Check prop clearance and the live camera view with your actual hardware. Cooling and drag performance have not been measured.
+The CAD checks use the supplied frame and modeled hardware. Confirm USB seating, lens clearance, live camera view and tape adhesion on the physical build. Start at 15° or less with a wide lens.
