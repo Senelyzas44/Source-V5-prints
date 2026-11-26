@@ -21,7 +21,7 @@ receiver_length = 24;
 wire_start = -65;          // Distances along the arm measured from the motor axis
 wire_end = -20;
 wire_floor = 1.5;
-wire_entry = 1.5;          // Unloaded opening between the flexible crown lips
+wire_mouth_flare = .22;    // Extra clearance around the bore at both ends
 bumper_screw_d = 3.5;
 bumper_head_d = 6.8;
 bumper_deck = 3.1;
@@ -182,35 +182,32 @@ module wire_outer(x,relief=0) {
     foot=(arm_high(x)-arm_low(x))/2-.27;
     shoulder=max(5.2,foot+.65);
     wire_station(x) rounded_polygon([
-        [-foot+.24,0],[foot-.24,0],[foot+.18,.48],[shoulder,1.75],
+        [-foot+.24,0],[foot-.24,0],[foot+.54,.50],[shoulder,1.30],
         [shoulder,3.6],[shoulder-.4,4.45-relief/2],[1.7,7.55-relief],
         [.85,7.8-relief],[-.85,7.8-relief],[-1.7,7.55-relief],
-        [-shoulder+.4,4.45-relief/2],[-shoulder,3.6],[-shoulder,1.75],
-        [-foot-.18,.48]],.25);
+        [-shoulder+.4,4.45-relief/2],[-shoulder,3.6],[-shoulder,1.30],
+        [-foot-.54,.50]],.25);
 }
 
-module wire_cavity(x) {
-    wire_station(x) rounded_polygon([
-        [-3.38,wire_floor],[3.38,wire_floor],[3.72,wire_floor+.34],
-        [3.72,3.52],[.88,6.46],[-.88,6.46],[-3.72,3.52],
-        [-3.72,wire_floor+.34]],.25);
-}
-
-module wire_slit(x) {
-    wire_station(x) polygon([[-wire_entry/2,5.95],[wire_entry/2,5.95],
-        [wire_entry/2,7.04],[1.42,7.84],[1.42,10],[-1.42,10],[-1.42,7.84],
-        [-wire_entry/2,7.04]]);
+module wire_cavity(x,flare=0) {
+    // The pitched shoulders meet at a short bridge over the straight bore.
+    wire_station(x) offset(r=flare,$fn=32) rounded_polygon([
+        [-3.36,wire_floor],[3.36,wire_floor],[3.72,wire_floor+.36],
+        [3.72,3.28],[1.04,5.95],[-1.04,5.95],[-3.72,3.28],
+        [-3.72,wire_floor+.36]],.27);
 }
 
 module wire_guard() {
     // The shallow saddle accepts the existing shoe tie, 34 mm inboard of the motor.
-    stations=[[wire_start+.03,.64],[wire_start+2.3,0],[-37,0],
-              [-36.2,.47],[-31.8,.47],[-31,0],[wire_end-2.3,0],[wire_end-.03,.64]];
+    stations=[[wire_start+.03,.20],[wire_start+2.3,0],[-37,0],
+              [-36.2,.47],[-31.8,.47],[-31,0],[wire_end-2.3,0],[wire_end-.03,.20]];
+    bore=[[wire_start-e,wire_mouth_flare],[wire_start+1.5,0],
+          [wire_end-1.5,0],[wire_end+e,wire_mouth_flare]];
     difference() {
         union() for(i=[0:len(stations)-2])
             hull() for(k=[i,i+1]) wire_outer(stations[k][0],stations[k][1]);
-        hull() for(x=[wire_start-1,wire_end+1]) wire_cavity(x);
-        hull() for(x=[wire_start-1,wire_end+1]) wire_slit(x);
+        for(i=[0:len(bore)-2])
+            hull() for(k=[i,i+1]) wire_cavity(bore[k][0],bore[k][1]);
     }
 }
 
