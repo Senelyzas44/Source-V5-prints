@@ -211,6 +211,10 @@ module wire_guard() {
     }
 }
 
+// Open saddle for a molded horizontal receiver-antenna hub.
+antenna_seat_width = 16.8;
+antenna_seat_depth = 8.8;
+antenna_seat_station = 16.6;
 module antenna() {
     difference() {
         union() {
@@ -218,12 +222,17 @@ module antenna() {
                 rear_base(22,6.6,10.2);
                 translate([-18,-4.3,-e]) cube([36,12,7]);
             }
-            slab([[-11,0],[11,0],[11,3.5],[6.4,7],[5.65,14.8],
-                  [-5.65,14.8],[-6.4,7],[-11,3.5]],4.1);
-            translate([-5.65,10.7,0]) cube([11.3,4.1,6.6]);
+            slab([[-11,0],[11,0],[11,3.5],[antenna_seat_width/2,9.2],
+                  [antenna_seat_width/2,antenna_seat_station+antenna_seat_depth/2],
+                  [-antenna_seat_width/2,antenna_seat_station+antenna_seat_depth/2],
+                  [-antenna_seat_width/2,9.2],[-11,3.5]],4.35);
         }
         post_holes(22,6.6);
-        translate([-6.2,12.05,1.75]) cube([12.4,1.65,3.15]);
+        // The pitched roof leaves a short bridge over the transverse tie tunnel.
+        translate([-antenna_seat_width/2-e,antenna_seat_station,0])
+            rotate([90,0,90]) linear_extrude(antenna_seat_width+2*e)
+                polygon([[-2.05,.85],[2.05,.85],[2.05,2.05],
+                         [.75,3.35],[-.75,3.35],[-2.05,2.05]]);
     }
 }
 

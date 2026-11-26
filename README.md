@@ -1,6 +1,6 @@
 # Source One V5 TPU print kit
 
-Dark-blue TPU parts for the TBS Source One V5. The four-post stack shroud has continuous rails around both USB windows and forward scoops that open into the electronics bay. Its front side walls overlap the camera cradle to cover the camera wiring. The RunCam Phoenix 2 cradle joins its two post sleeves below the lens and leaves the rear open for the cable. Each 45 mm motor-wire protector has an enclosed tunnel, flared entrances and a flat sole for a 6 × 41 mm strip of 3M tape.
+Dark-blue TPU parts for the TBS Source One V5. The four-post stack shroud has continuous rails around both USB windows and forward scoops that open into the electronics bay. Its front side walls overlap the camera cradle to cover the camera wiring. The RunCam Phoenix 2 cradle joins its two post sleeves below the lens and leaves the rear open for the cable. The rear RX antenna saddle accepts a bulkier horizontal T antenna. Each 45 mm motor-wire protector has an enclosed tunnel, flared entrances and a flat sole for a 6 × 41 mm strip of 3M tape.
 
 ![CAD views of the stack shroud, camera cradle, wire holder and flat tape sole](previews/revision-preview.png)
 
@@ -16,6 +16,6 @@ Use 95A TPU. Print the shroud tail down, the camera cradle bridge down, and the 
 
 ## Assembly views
 
-[Camera wire protection, assembled and exposed](previews/camera-wire-preview.jpg) · [Assembly sketch](previews/sketch-preview.png) · [Assembled frame](previews/assembly-preview.jpg) · [USB cable and camera fit](previews/service-preview.jpg) · [Wire holder and landing shoe](previews/arm-detail-preview.jpg) · [Camera and scoop](previews/nose-preview.jpg) · [Rear electronics](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
+[Camera wire protection, assembled and exposed](previews/camera-wire-preview.jpg) · [Assembly sketch](previews/sketch-preview.png) · [Assembled frame](previews/assembly-preview.jpg) · [USB cable and camera fit](previews/service-preview.jpg) · [Wire holder and landing shoe](previews/arm-detail-preview.jpg) · [Camera and scoop](previews/nose-preview.jpg) · [Bulkier RX antenna mount](previews/rx-antenna-preview.jpg) · [Rear electronics](previews/cutaway-preview.jpg) · [Underside](previews/underside-preview.jpg)
 
 The CAD checks use the supplied frame and modeled hardware. Confirm USB seating, lens clearance, live camera view and tape adhesion on the physical build. Start at 15° or less with a wide lens.
