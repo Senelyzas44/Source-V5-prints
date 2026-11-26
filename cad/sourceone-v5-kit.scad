@@ -5,7 +5,7 @@ camera_width = 19.3;       // Inside distance between the screw seats
 camera_screw_d = 2.5;
 camera_rail_thickness = 3.4;
 camera_post_bore = 5.8;
-camera_pivot_setback = 19.1; // Rearward from the front post axis
+camera_pivot_setback = 11.5; // Rearward from the front post axis
 camera_pivot_height = 10.95;   // Above the nose plate
 camera_up_tilt = 15;
 standoff_bore = 5.35;
@@ -48,10 +48,10 @@ module post_rings(pitch, h, outer=8.7) {
 
 // Closed low sleeves leave the stock posts exposed at lens height. The
 // rear stays open and each screw seat grows out of its own continuous foot.
-camera_sleeve_height = 7.4;
+camera_sleeve_height = 4.65;
 module cheek_profile() {
     rounded_polygon([[-25,2.0],[-25,15],[-22.4,19.5],[-17.5,22.4],
-                     [-13.4,22.4],[-10.8,19.5],[-5.8,9.0],[-4.05,7.15],
+                     [-10.5,22.4],[-7.8,19.5],[-4.6,9.0],[-3.4,7.15],
                      [.35,7.15],[.35,0],[-22.6,0]],1.15);
 }
 
@@ -96,8 +96,10 @@ module phoenix2_cradle() {
             hull() for (hand=[-1,1])
                 translate([hand*9.5,0,0]) cylinder(r=3.75,h=3.25);
         }
-        for (hand=[-1,1])
-            translate([hand*9.5,0,0]) chamfered_post_hole(camera_post_bore,camera_sleeve_height);
+        for (hand=[-1,1]) translate([hand*9.5,0,0]) {
+            chamfered_post_hole(camera_post_bore,camera_sleeve_height);
+            translate([0,0,camera_sleeve_height-e]) cylinder(d=camera_post_bore,h=5);
+        }
         // One common axis through the two side walls sets the camera tilt.
         translate([-17,-camera_pivot_setback,camera_pivot_height])
             pointed_screw_hole(camera_screw_d,34);
@@ -345,10 +347,10 @@ module harness_wall() {
               [44.8,12.5,16.45,10.9,9.69,shroud_top],
               [49.3,12.45,16.4,11.2,9.69,shroud_top],
               [51.4,13.52,16.65,13.46,9.69,shroud_top],
-              [58.5,13.52,16.65,13.46,9.69,shroud_top],
-              [61.05,13.52,16.42,13.46,10.35,31.7],
-              [62.35,13.52,16.12,13.46,11.65,30.3],
-              [62.75,13.52,15.95,13.46,12.5,29.3]];
+              [66.1,13.52,16.65,13.46,9.69,shroud_top],
+              [68.65,13.52,16.42,13.46,10.35,31.7],
+              [69.95,13.52,16.12,13.46,11.65,30.3],
+              [70.35,13.52,15.95,13.46,12.5,29.3]];
     for (i=[0:len(stations)-2],section=[0:2]) hull() for(k=[i,i+1])
         nose_wall_section(stations[k],section);
 }
