@@ -52,20 +52,23 @@ module post_rings(pitch, h, outer=8.7) {
 camera_sleeve_height = 4.65;
 module cheek_profile() {
     rounded_polygon([[-25,2.0],[-25,15],[-22.4,19.5],[-17.5,22.4],
-                     [-10.5,22.4],[-7.8,19.5],[-4.7,7.15],
-                     [-4.7,camera_sleeve_height],[.35,camera_sleeve_height],
-                     [.35,0],[-22.6,0]],1.15);
+                     [-10.5,22.4],[-7.8,19.5],[-4.6,9.0],[-3.4,7.15],
+                     [.35,7.15],[.35,0],[-22.6,0]],1.15);
 }
 
 module camera_side() {
-    // The heel joins the sleeve at its base and stops flush at the sleeve top.
-    translate([camera_width/2,0,0]) rotate([90,0,90]) union() {
-        linear_extrude(camera_rail_thickness-.55) cheek_profile();
-        hull() {
-            translate([0,0,camera_rail_thickness-.6])
-                linear_extrude(.08) cheek_profile();
-            translate([0,0,camera_rail_thickness-.06])
-                linear_extrude(.06) offset(delta=-.48) cheek_profile();
+    // The heel extends across the post axis. Its full width enters the sleeve.
+    translate([camera_width/2,0,0]) rotate([90,0,90]) intersection() {
+        // Bound the bevel to the concave profile so it cannot form a thin fin.
+        linear_extrude(camera_rail_thickness) cheek_profile();
+        union() {
+            linear_extrude(camera_rail_thickness-.55) cheek_profile();
+            hull() {
+                translate([0,0,camera_rail_thickness-.6])
+                    linear_extrude(.08) cheek_profile();
+                translate([0,0,camera_rail_thickness-.06])
+                    linear_extrude(.06) offset(delta=-.48) cheek_profile();
+            }
         }
     }
     translate([camera_post_pitch/2,0,0]) hull() {
@@ -98,9 +101,10 @@ module phoenix2_cradle() {
             hull() for (hand=[-1,1])
                 translate([hand*camera_post_pitch/2,0,0]) cylinder(r=3.75,h=3.25);
         }
-        for (hand=[-1,1])
-            translate([hand*camera_post_pitch/2,0,0])
-                chamfered_post_hole(camera_post_bore,camera_sleeve_height);
+        for (hand=[-1,1]) translate([hand*camera_post_pitch/2,0,0]) {
+            chamfered_post_hole(camera_post_bore,camera_sleeve_height);
+            translate([0,0,camera_sleeve_height-e]) cylinder(d=camera_post_bore,h=5);
+        }
         // One common axis through the two side walls sets the camera tilt.
         translate([-17,-camera_pivot_setback,camera_pivot_height])
             pointed_screw_hole(camera_screw_d,34);
