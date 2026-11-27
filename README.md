@@ -7,7 +7,7 @@ Dark-blue TPU parts for the TBS Source One V5. The four-post stack shroud has co
 ## Download and print
 
 - [Four enclosed wire protectors, two of each hand](downloads/wire-protectors.3mf) · [Preview and cross-section](previews/wire-protectors-preview.png)
-- [Two-piece forward camera plate with matching shroud](downloads/forward-camera.3mf)
+- [Two-piece forward camera plate for 19 mm post centers](downloads/forward-camera.3mf) · [20 mm cradle STL](STL/phoenix2-cradle-20mm.stl) · [21 mm cradle STL](STL/phoenix2-cradle-21mm.stl)
 - [Six-piece revision plate with the shroud, cradle and all four wire holders](downloads/fit-fix-print-plate.3mf)
 - [Complete kit ZIP](downloads/Source-One-V5-Dark-Blue-Scoop-Kit.zip) · [Complete 16-piece print plate](downloads/dark-blue-print-plate.3mf)
 - [Individual STLs](STL/) · [Print settings and fit guide](PRINT-AND-FIT.md)

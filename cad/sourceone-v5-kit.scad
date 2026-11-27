@@ -4,7 +4,8 @@ part = "stack-shroud"; // [stack-shroud,phoenix2-cradle,wire_right,wire_left,cam
 camera_width = 19.3;       // Inside distance between the screw seats
 camera_screw_d = 2.5;
 camera_rail_thickness = 3.4;
-camera_post_bore = 5.8;
+camera_post_bore = 5.3;     // Sliding clearance for 5 mm posts
+camera_post_pitch = 19;     // Center distance between the nose posts
 camera_pivot_setback = 11.5; // Rearward from the front post axis
 camera_pivot_height = 10.95;   // Above the nose plate
 camera_up_tilt = 15;
@@ -66,7 +67,7 @@ module camera_side() {
                 linear_extrude(.06) offset(delta=-.48) cheek_profile();
         }
     }
-    translate([9.5,0,0]) hull() {
+    translate([camera_post_pitch/2,0,0]) hull() {
         cylinder(r=4.93,h=.45);
         translate([0,0,.65]) cylinder(r=5.1,h=camera_sleeve_height-1.4);
         translate([0,0,camera_sleeve_height-.36]) cylinder(r=4.85,h=.36);
@@ -94,9 +95,9 @@ module phoenix2_cradle() {
         union() {
             for (hand=[-1,1]) scale([hand,1,1]) camera_side();
             hull() for (hand=[-1,1])
-                translate([hand*9.5,0,0]) cylinder(r=3.75,h=3.25);
+                translate([hand*camera_post_pitch/2,0,0]) cylinder(r=3.75,h=3.25);
         }
-        for (hand=[-1,1]) translate([hand*9.5,0,0]) {
+        for (hand=[-1,1]) translate([hand*camera_post_pitch/2,0,0]) {
             chamfered_post_hole(camera_post_bore,camera_sleeve_height);
             translate([0,0,camera_sleeve_height-e]) cylinder(d=camera_post_bore,h=5);
         }
