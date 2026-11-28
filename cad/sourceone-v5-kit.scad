@@ -129,10 +129,16 @@ module sma_face() {
 module sma() {
     difference() {
         union() {
-            rear_base(22,12);
+            hull() for(side=[-1,1])
+                rear_blend_node(side*11,0,0,4.45,4.5,.65);
+            for(side=[-1,1])
+                rear_blend_node(side*11,0,0,12,5.7,.7);
             hull() {
-                translate([-11,0,0]) cube([22,3.1,4.1]);
-                sma_face() rotate([-90,0,0]) cylinder(d=15.2,h=sma_panel);
+                for(side=[-1,1])
+                    rear_blend_node(side*9.6,3.45,.3,5.3,3.35,.6);
+                // Wider boss with radiused lips and the stock panel thickness.
+                sma_face() rotate([-90,0,0])
+                    rear_blend_node(0,0,0,sma_panel,9.4,.7);
             }
         }
         post_holes(22,15);
@@ -144,7 +150,7 @@ module sma() {
                         translate([-sma_d/2,-sma_d/2])
                             square([sma_flat,sma_d]);
                     }
-            // Seat the inner washer on a flat surface normal to the connector.
+            // The washer bears on the flat back of the SMA face.
             translate([0,e,0]) rotate([90,0,0]) cylinder(d=11.7,h=15);
         }
     }
@@ -218,10 +224,30 @@ module wire_guard() {
     }
 }
 
-// Open saddle for a molded horizontal receiver-antenna hub.
-antenna_seat_width = 16.8;
-antenna_seat_depth = 8.8;
-antenna_seat_station = 16.6;
+// Closed eyelets hold the two stems of a single centered T antenna.
+antenna_eye_bore = 3.55;
+antenna_eye_spacing = 27;
+antenna_station = 24.6;
+antenna_height = 7.12;
+antenna_eye_width = 4.65;
+
+module antenna_eye(cut=false) {
+    translate([antenna_eye_spacing/2,antenna_station,antenna_height])
+        rotate([0,90,0])
+            cylinder(d=cut ? antenna_eye_bore : 7.55,
+                     h=antenna_eye_width+(cut ? 2*e : 0),center=true);
+}
+
+module antenna_branch() {
+    stations=[[11,0,3.55],[12.25,5.3,2.8],[14.55,11.5,2.5],
+              [15.2,17,2.5],[14.45,21.45,2.65],
+              [antenna_eye_spacing/2,antenna_station,2.8]];
+    linear_extrude(4.35)
+        for(i=[0:len(stations)-2]) hull() for(k=[i,i+1])
+            translate([stations[k][0],stations[k][1]])
+                circle(r=stations[k][2],$fn=40);
+}
+
 module antenna() {
     difference() {
         union() {
@@ -229,17 +255,15 @@ module antenna() {
                 rear_base(22,6.6,10.2);
                 translate([-18,-4.3,-e]) cube([36,12,7]);
             }
-            slab([[-11,0],[11,0],[11,3.5],[antenna_seat_width/2,9.2],
-                  [antenna_seat_width/2,antenna_seat_station+antenna_seat_depth/2],
-                  [-antenna_seat_width/2,antenna_seat_station+antenna_seat_depth/2],
-                  [-antenna_seat_width/2,9.2],[-11,3.5]],4.35);
+            for(side=[-1,1]) scale([side,1,1]) {
+                antenna_branch();
+                antenna_eye();
+            }
         }
         post_holes(22,6.6);
-        // The pitched roof leaves a short bridge over the transverse tie tunnel.
-        translate([-antenna_seat_width/2-e,antenna_seat_station,0])
-            rotate([90,0,90]) linear_extrude(antenna_seat_width+2*e)
-                polygon([[-2.05,.85],[2.05,.85],[2.05,2.05],
-                         [.75,3.35],[-.75,3.35],[-2.05,2.05]]);
+        for(side=[-1,1]) scale([side,1,1]) antenna_eye(true);
+        // Leave room under the existing VTX pigtail.
+        translate([-6,-4.35,3.15]) cube([3.3,5.65,2.35]);
     }
 }
 
@@ -294,10 +318,16 @@ module flank() {
 
 module shroud_usb() {
     translate([16,0,0]) rotate([90,0,90]) linear_extrude(18)
-        rounded_polygon([[-9.8,10.45],[9.8,10.45],[13.0,11.65],
-                         [18.15,17.3],[18.15,21.7],[12.65,28.2],
-                         [-12.65,28.2],[-18.15,21.7],[-18.15,17.3],
-                         [-13.0,11.65]],1.15);
+        rounded_polygon([[-9.5,19.1],[-7.4,17.05],[7.4,17.05],[9.5,19.1],
+                         [9.5,27.9],[7.4,29.95],[-7.4,29.95],[-9.5,27.9]],.85);
+}
+
+module shroud_wire_exits() {
+    // Each motor bundle gets a low notch so the USB opening stays covered.
+    for (end=[-1,1])
+        translate([16,end*14.9,0]) rotate([90,0,90]) linear_extrude(18)
+            rounded_polygon([[-5.15,6.0],[5.15,6.0],[5.15,11.45],
+                             [3,13.75],[-3,13.75],[-5.15,11.45]],.75);
 }
 
 module inlet_station(y,x,z,w,h) {
@@ -320,12 +350,50 @@ module upper_node(x,y,r) {
     translate([x,y,shroud_top-4.1]) cylinder(r=r,h=4.1);
 }
 
+rear_brace_base = 7.0;
+rear_brace_height = 4.85;
+
+module rear_blend_node(x,y,bottom,top,radius,roundover=.65) {
+    translate([x,y,bottom+roundover]) rotate_extrude($fn=36)
+        intersection() {
+            offset(r=roundover,$fn=16)
+                square([radius-roundover,top-bottom-2*roundover]);
+            translate([0,-roundover])
+                square([radius+e,top-bottom+e]);
+        }
+}
+
+module rear_post_boss() {
+    rear_blend_node(10,-42.883,rear_brace_base,
+                    rear_brace_base+rear_brace_height,5.15);
+}
+
+module lower_rear_brace() {
+    // Rounded lofts enlarge the wing roots. The low crosspiece still gives
+    // the upper power leads a clear path and grows from both sides of the bed.
+    intersection() {
+        union() for(hand=[-1,1]) scale([hand,1,1]) {
+            hull() {
+                rear_blend_node(22.0,-46.1,10.7,13.22,1.7,.48);
+                rear_blend_node(22.7,-41.6,8.5,13.02,2.65);
+                rear_blend_node(22.65,-37.2,8.65,13.02,2.75);
+                rear_post_boss();
+            }
+            hull() {
+                rear_post_boss();
+                rear_blend_node(5.6,-39.1,7.0,11.85,3.2);
+            }
+            hull() {
+                rear_blend_node(5.6,-39.1,7.0,11.85,3.2);
+                rear_blend_node(0,-35.85,7.0,11.85,3.45);
+            }
+        }
+        translate([-30,shroud_tail,6.5]) cube([60,19,10]);
+    }
+}
+
 module cross_braces() {
-    // The flat rear edge is also the bed face. The swept front brace
-    // converges at the nose as it grows in the tail-down print orientation.
-    translate([0,0,shroud_top-4.85]) linear_extrude(4.85)
-        rounded_polygon([[-22.7,shroud_tail],[22.7,shroud_tail],[24.2,-41.1],
-                         [21.7,-37.65],[-21.7,-37.65],[-24.2,-41.1]],1.05);
+    lower_rear_brace();
     for(hand=[-1,1]) scale([hand,1,1]) {
         hull() { upper_node(24.05,18.35,4.7); upper_node(9.5,32.883,5.1); }
         hull() { upper_node(9.5,32.883,5.1); upper_node(0,42.6,3.6); }
@@ -381,13 +449,23 @@ module stack_shroud() {
             for (hand=[-1,1]) scale([hand,1,1]) difference() {
                 union() { flank(); front_post_web(); harness_wall(); }
                 shroud_usb();
+                shroud_wire_exits();
                 scoop_airway();
                 camera_driver_access();
             }
         }
-        for(hand=[-1,1],pos=[[9.5,32.883,shroud_top-9.55],[10,-42.883,4.85]])
-            translate([hand*pos[0],pos[1],shroud_top-pos[2]])
-                chamfered_post_hole(shroud_post_bore,pos[2]);
+        // The FT800 case occupies the center immediately behind the brace.
+        translate([0,0,5.5]) linear_extrude(8.5)
+            rounded_polygon([[-12.9,-50],[12.9,-50],[12.9,-46.65],[-12.9,-46.65]],.7);
+        for(hand=[-1,1]) {
+            translate([hand*9.5,32.883,9.55])
+                chamfered_post_hole(shroud_post_bore,shroud_top-9.55);
+            translate([hand*10,-42.883,rear_brace_base]) {
+                chamfered_post_hole(shroud_post_bore,rear_brace_height);
+                translate([0,0,rear_brace_height-e])
+                    cylinder(d=shroud_post_bore,h=2);
+            }
+        }
     }
 }
 
@@ -460,30 +538,70 @@ module strap_saddle_section(start,margin,z,h) {
                          [end,arm_high(end)+margin],[start,arm_high(start)+margin]],2);
 }
 
+// Rail sections follow the outside envelope of the carbon motor-pad lobes.
+// The opening faces the arm, allowing the shoe to slide in from the motor end.
+module motor_slide_rail_section(x,wall,lip,section) {
+    // Separate rounded lofts keep the sliding cavity open where the hooks
+    // turn inward. The footing widens toward the tread.
+    points=section==2 ?
+        [[wall-.08,14.41],[wall+2.45,14.41],[wall+2.30,16.45],
+         [wall+1.55,17.16],[lip+.52,17.16],[lip,16.61],[lip,14.96]]
+        : section==1 ?
+        [[wall,7.9],[wall+2.8,8.15],[wall+2.75,14.2],
+         [wall+2.03,15.12],[wall,15.12]]
+        : [[wall-1.7,6.05],[wall+.95,6.05],[wall+2.75,8.15],
+           [wall+2.48,8.82],[wall-.72,8.82]];
+    translate([x,0,0]) rotate([90,0,90]) linear_extrude(.08,center=true)
+        rounded_polygon(points,.37);
+}
+
+module motor_slide_rails() {
+    stations=[[7.15,15.22,14.5],[8.4,15.17,13.0],
+              [10.75,15.05,12.80],[12.7,14.1,12.46],[13.55,13.9,12.82]];
+    for (side=[-1,1]) scale([1,side,1])
+        for(i=[0:len(stations)-2],section=[0:2])
+            hull() for(k=[i,i+1])
+                motor_slide_rail_section(stations[k][0],stations[k][1],stations[k][2],section);
+}
+
 module arm_strap_bumper() {
     contact=9;
-    rim=4.75;
+    slide_travel=7.2;
     difference() {
         union() {
             bumper_tread();
             hull() {
                 strap_saddle_section(-36.7,.65,0,.2);
-                strap_saddle_section(-38.9,1.3,2.5,contact-2.5);
+                strap_saddle_section(-38.9,1.72,2.5,contact-2.5);
             }
-            translate([0,0,contact-.12]) linear_extrude(rim+.12)
-                difference() {
-                    nose_outline(3.42);
-                    offset(r=.55,$fn=32) polygon(arm_outline);
-                    translate([-22,-10.5]) square([8,21]);
+            motor_slide_rails();
+            // The small nose wall stops against the end of the carbon pad.
+            translate([0,0,contact-.12]) linear_extrude(4.7)
+                intersection() {
+                    difference() {
+                        nose_outline(3.42);
+                        offset(r=.55,$fn=32) polygon(arm_outline);
+                    }
+                    translate([14.35,-9.2]) square([6,18.4]);
                 }
         }
-        // A common open pocket clears existing heads on both mounting patterns.
-        translate([0,0,4.35]) cylinder(d=26.6,h=contact+rim);
-        translate([0,0,-e]) cylinder(d=8.2,h=4.4);
-        // Thread a 3.6 mm tie across the saddle at the wire shield's outer band.
-        translate([-34,0,5.85]) rotate([90,0,0]) linear_extrude(22,center=true)
-            hull() for(x=[-1.45,1.45])
-                translate([x,0]) circle(d=1.65,$fn=40);
+        // Preserve the driver pocket and clear overlapping screw-head paths
+        // while the shoe travels from its lift-in position to the nose stop.
+        translate([0,0,4.35]) cylinder(d=26.6,h=contact+7);
+        for (s=[-1,1],t=[-1,1],pattern=[16,19])
+            hull() for(travel=[0,slide_travel])
+                translate([s*pattern/sqrt(8)-travel,t*pattern/sqrt(8),4.35])
+                    cylinder(d=7.4,h=contact+7);
+        hull() for(travel=[0,slide_travel])
+            translate([-travel,0,-e]) cylinder(d=8.2,h=4.4);
+        // Thread a single tie at the wire shield's motor-side tie band.
+        translate([-34,0,0]) rotate([90,0,0]) linear_extrude(22,center=true)
+            rounded_polygon([[-2.4,4.85],[2.4,4.85],[2.4,6.15],
+                             [1.45,7.05],[-1.45,7.05],[-2.4,6.15]],.45);
+        // Side recess at the tunnel exit for a compact zip-tie head.
+        translate([-34,8,0]) rotate([90,0,0]) linear_extrude(2.9)
+            rounded_polygon([[-3.05,3.95],[3.05,3.95],[3.05,6.45],
+                             [2.25,7.65],[-2.25,7.65],[-3.05,6.45]],.55);
         for (side=[-1,1])
             translate([0,side*11.9,-e]) linear_extrude(1.23)
                 hull() for (x=[-4.15,5.15])
